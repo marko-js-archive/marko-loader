@@ -1,0 +1,27 @@
+{
+  "name": "marko-loader",
+  "version": "1.0.0",
+  "description": "A marko template loader for webpack",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webpack",
+    "loader",
+    "marko"
+  ],
+  "author": "Patrick Steele-Idem <pnidem@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "marko": "^3.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marko-js/marko-loader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marko-js/marko-loader/issues"
+  },
+  "homepage": "https://github.com/marko-js/marko-loader#readme"
+}
