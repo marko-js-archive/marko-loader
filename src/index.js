@@ -1,9 +1,16 @@
-var marko = require('marko/compiler');
+var markoCompiler = require('marko/compiler');
 
-module.exports = function (source) {
+module.exports = function(source) {
     this.cacheable(false);
-    
-	return marko.compile(source, this.resourcePath, {
-		writeToDisk: false
-	});
+
+    if (markoCompiler.compileForBrowser) {
+        return markoCompiler.compileForBrowser(source, this.resourcePath, {
+    		writeToDisk: false
+    	});
+    } else {
+        return markoCompiler.compile(source, this.resourcePath, {
+    		writeToDisk: false
+    	});
+    }
+
 };

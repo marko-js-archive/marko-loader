@@ -45,8 +45,12 @@ _./index.js:_
 
 ```javascript
 var template = require('./template.marko')
-var html = template.renderSync({ name: 'Frank' });
+var html = template.renderToString({ name: 'Frank' });
 ```
+
+# Additional resources
+
+- Sample app: [github.com/marko-js-samples/marko-webpack]()
 
 # License
 
