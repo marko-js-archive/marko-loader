@@ -4,9 +4,10 @@ module.exports = function(source) {
     this.cacheable(false);
 
     if (markoCompiler.compileForBrowser) {
-        return markoCompiler.compileForBrowser(source, this.resourcePath, {
+        var compiled = markoCompiler.compileForBrowser(source, this.resourcePath, {
     		writeToDisk: false
     	});
+        return compiled.code;
     } else {
         return markoCompiler.compile(source, this.resourcePath, {
     		writeToDisk: false
