@@ -14,7 +14,7 @@
   "author": "Patrick Steele-Idem <pnidem@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "marko": "^3.10.0"
+    "marko": "^4.0.0-rc.23"
   },
   "repository": {
     "type": "git",
