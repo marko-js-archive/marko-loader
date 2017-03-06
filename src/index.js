@@ -1,15 +1,17 @@
 var markoCompiler = require('marko/compiler');
 var loaderUtils = require('loader-utils');
+var path = require('path');
+var RuleSet = require('./RuleSet');
 
 var defaultLoaders = {
-    'css':'style-loader!css-loader!'
+    '.css':'style-loader!css-loader!'
 }
 
 module.exports = function(source) {
     var query = loaderUtils.parseQuery(this.query);
     var options = this.options;
-    var module = options && options.module;
-    var loaders = module && module.loaders || [];
+    var module = options && options.module || {};
+    var ruleSet = new RuleSet((module.rules || []).concat(module.loaders || []))
 
     this.cacheable(false);
 
@@ -25,9 +27,12 @@ module.exports = function(source) {
             } else {
                 // inline content, we'll create a
                 var virtualPath = dependency.virtualPath;
-                var loader = getLoaderMatch(virtualPath, loaders);
+                var ext = path.parse(virtualPath).ext;
+
+                var loaders = ruleSet.exec({resource: virtualPath});
+                var loader = loaders.length ? `${loaders.map(l => l.value.loader).join('!')}!` : defaultLoaders[ext];
                 var codeLoader = require.resolve('./code-loader');
-                var codeQuery = JSON.stringify({ code:dependency.code });
+                var codeQuery = JSON.stringify({ code: dependency.code });
                 var loaderString = loaderUtils.stringifyRequest(this, `!!${loader}${codeLoader}?${codeQuery}!${this.resourcePath}`);
                 return `require(${loaderString})`;
             }
@@ -41,36 +46,3 @@ module.exports = function(source) {
     	});
     }
 };
-
-function getLoaderMatch(path, loaders) {
-    var loaderString;
-    var ext;
-
-    loaders.some(loader => {
-        if(loader.test.test(path)) {
-            loaderString = getLoaderString(loader.loader);
-            return true;
-        }
-    });
-
-    if (!loaderString) {
-        ext = path.slice(path.lastIndexOf('.')+1);
-        loaderString = getLoaderString(defaultLoaders[ext]);
-    }
-
-    return loaderString;
-}
-
-function getLoaderString(loader) {
-    if (!loader) {
-        return '';
-    } else if (typeof loader === 'string') {
-        return loader.slice(-1) === '!' ? loader : loader + '!';
-    } else if (Array.isArray(loader)) {
-        return loader.map(getLoaderString).join('');
-    } else {
-        var options = loader.options;
-        var optionsString = options && (typeof options === 'string' ? options : JSON.stringify(options));
-        return loader.loader + (optionsString ? '?' + optionsString : '') + '!';
-    }
-}
