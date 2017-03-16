@@ -25,6 +25,6 @@
   },
   "homepage": "https://github.com/marko-js/marko-loader#readme",
   "dependencies": {
-    "loader-utils": "^1.0.3"
+    "loader-utils": "^1.1.0"
   }
 }
