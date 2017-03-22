@@ -24,7 +24,5 @@
     "url": "https://github.com/marko-js/marko-loader/issues"
   },
   "homepage": "https://github.com/marko-js/marko-loader#readme",
-  "dependencies": {
-    "loader-utils": "^1.0.3"
-  }
+  "dependencies": {}
 }
