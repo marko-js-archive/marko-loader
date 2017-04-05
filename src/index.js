@@ -21,7 +21,7 @@ module.exports = function(source) {
         var dependencies = compiled.dependencies.map((dependency, i) => {
             if (!dependency.code) {
                 // external file, just require it
-                return `require('${dependency.path}');`
+                return `require('${dependency.path.replace(/\\/g, "\\\\")}');`
             } else {
                 // inline content, we'll create a
                 var virtualPath = dependency.virtualPath;
