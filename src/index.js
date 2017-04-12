@@ -6,10 +6,10 @@ var defaultLoaders = {
 };
 
 module.exports = function(source) {
-    var query = loaderUtils.parseQuery(this.query);
+    var query = this.query && loaderUtils.parseQuery(this.query) || {};
     var options = this.options;
     var module = options && options.module;
-    var loaders = module && module.loaders || [];
+    var loaders = module && (module.rules || []).concat(module.loaders || []);
 
     this.cacheable(false);
 
@@ -48,7 +48,7 @@ function getLoaderMatch(path, loaders) {
 
     loaders.some(loader => {
         if(loader.test.test(path)) {
-            loaderString = getLoaderString(loader.loader);
+            loaderString = getLoaderString(loader.use || loader.loader);
             return true;
         }
     });
