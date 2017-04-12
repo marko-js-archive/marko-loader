@@ -3,7 +3,7 @@ var loaderUtils = require('loader-utils');
 
 var defaultLoaders = {
     'css':'style-loader!css-loader!'
-}
+};
 
 module.exports = function(source) {
     var query = loaderUtils.parseQuery(this.query);
@@ -15,13 +15,13 @@ module.exports = function(source) {
 
     if (query.target !== 'server' && markoCompiler.compileForBrowser) {
         var compiled = markoCompiler.compileForBrowser(source, this.resourcePath, {
-    		writeToDisk: false
-    	});
+            writeToDisk: false
+        });
 
         var dependencies = compiled.dependencies.map((dependency, i) => {
             if (!dependency.code) {
                 // external file, just require it
-                return `require('${dependency.path.replace(/\\/g, "\\\\")}');`
+                return `require('${dependency.path.replace(/\\/g, "\\\\")}');`;
             } else {
                 // inline content, we'll create a
                 var virtualPath = dependency.virtualPath;
@@ -31,14 +31,14 @@ module.exports = function(source) {
                 var loaderString = loaderUtils.stringifyRequest(this, `!!${loader}${codeLoader}?${codeQuery}!${this.resourcePath}`);
                 return `require(${loaderString})`;
             }
-        })
+        });
 
         return dependencies.concat(compiled.code).join('\n');
     } else {
         return markoCompiler.compile(source, this.resourcePath, {
-    		writeToDisk: false,
+            writeToDisk: false,
             requireTemplates: true
-    	});
+        });
     }
 };
 

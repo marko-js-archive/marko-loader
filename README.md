@@ -18,12 +18,12 @@ _webpack.config.js:_
 
 ```javascript
 const options = {
-	// ...
-	module: {
-		loaders:[
-			{ test: /\.marko$/, loader: 'marko-loader' }
-		]
-	}
+    // ...
+    module: {
+        loaders: [
+            { test: /\.marko$/, loader: 'marko-loader' }
+        ]
+    }
 };
 
 module.exports = options;
@@ -50,7 +50,7 @@ var html = template.renderToString({ name: 'Frank' });
 
 # Additional resources
 
-- Sample app: [github.com/marko-js-samples/marko-webpack]()
+- Sample app: [marko-webpack](https://github.com/marko-js-samples/marko-webpack)
 
 # License
 
