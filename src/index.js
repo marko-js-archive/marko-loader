@@ -6,14 +6,15 @@ var defaultLoaders = {
 };
 
 module.exports = function(source) {
-    var query = loaderUtils.parseQuery(this.query);
-    var options = this.options;
-    var module = options && options.module;
-    var loaders = module && module.loaders || [];
+    const queryOptions = loaderUtils.getOptions(this);  // Not the same as this.options
+    const target = queryOptions && queryOptions.target;
+
+    const module = this.options.module;
+    const loaders = module && (module.loaders || module.rules) || [];
 
     this.cacheable(false);
 
-    if (query.target !== 'server' && markoCompiler.compileForBrowser) {
+    if (target !== 'server' && markoCompiler.compileForBrowser) {
         var compiled = markoCompiler.compileForBrowser(source, this.resourcePath, {
             writeToDisk: false
         });
@@ -48,7 +49,7 @@ function getLoaderMatch(path, loaders) {
 
     loaders.some(loader => {
         if(loader.test.test(path)) {
-            loaderString = getLoaderString(loader.loader);
+            loaderString = getLoaderString(loader.use || loader.loader);
             return true;
         }
     });
