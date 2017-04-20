@@ -1,6 +1,6 @@
 var loaderUtils = require('loader-utils');
+var decode = require('./interface').decode;
 
 module.exports = function() {
-    var query = loaderUtils.parseQuery(this.query);
-    return query.code.replace(/\/n/g, '\n');
+    return decode(loaderUtils.getOptions(this));
 };

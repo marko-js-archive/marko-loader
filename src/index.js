@@ -1,9 +1,12 @@
 var markoCompiler = require('marko/compiler');
 var loaderUtils = require('loader-utils');
+var encode = require('./interface').encode;
 
 var defaultLoaders = {
     'css':'style-loader!css-loader!'
 };
+
+var codeLoader = require.resolve('./code-loader');
 
 module.exports = function(source) {
     var query = loaderUtils.parseQuery(this.query);
@@ -26,8 +29,7 @@ module.exports = function(source) {
                 // inline content, we'll create a
                 var virtualPath = dependency.virtualPath;
                 var loader = getLoaderMatch(virtualPath, loaders);
-                var codeLoader = require.resolve('./code-loader');
-                var codeQuery = JSON.stringify({ code:dependency.code });
+                var codeQuery = encode(dependency.code);
                 var loaderString = loaderUtils.stringifyRequest(this, `!!${loader}${codeLoader}?${codeQuery}!${this.resourcePath}`);
                 return `require(${loaderString})`;
             }
