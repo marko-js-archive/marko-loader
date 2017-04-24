@@ -1,6 +1,8 @@
-var Buffer = require('buffer').Buffer;
+'use strict';
 
-var KEY = "CODE";
+const Buffer = require('buffer').Buffer;
+
+const KEY = 'CODE';
 
 function encodeAsHexString(string) {
     return Buffer.from(string).toString('hex');

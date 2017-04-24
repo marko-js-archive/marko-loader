@@ -1,3 +1,5 @@
+'use strict';
+
 var loaderUtils = require('loader-utils');
 var decode = require('./interface').decode;
 

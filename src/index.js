@@ -1,3 +1,5 @@
+'use strict';
+
 var markoCompiler = require('marko/compiler');
 var loaderUtils = require('loader-utils');
 var encode = require('./interface').encode;
