@@ -9,7 +9,7 @@ Install required packages:
 
 ```bash
 npm install marko --save
-npm install marko-loader --save
+npm install marko-loader --save-dev
 ```
 
 And then register the marko loader in your webpack configuration file:
@@ -47,6 +47,11 @@ _./index.js:_
 var template = require('./template.marko')
 var html = template.renderToString({ name: 'Frank' });
 ```
+
+# Compilation target
+
+`marko-loader` will automatically detect your webpack target and output the appropriately compiled Marko code.
+If you wish to override this behaviour simply add the `target` field in the options for this loader.
 
 # Additional resources
 

@@ -12,7 +12,7 @@ var codeLoader = require.resolve('./code-loader');
 
 module.exports = function(source) {
     const queryOptions = loaderUtils.getOptions(this);  // Not the same as this.options
-    const target = queryOptions && queryOptions.target;
+    const target = normalizeTarget((queryOptions && queryOptions.target) || this.target);
 
     const module = this.options.module;
     const loaders = module && (module.loaders || module.rules) || [];
@@ -77,5 +77,19 @@ function getLoaderString(loader) {
         var options = loader.options;
         var optionsString = options && (typeof options === 'string' ? options : JSON.stringify(options));
         return loader.loader + (optionsString ? '?' + optionsString : '') + '!';
+    }
+}
+
+function normalizeTarget (target) {
+    switch (target) {
+      case 'server':
+      case 'node':
+      case 'async-node':
+      case 'atom':
+      case 'electron':
+      case 'electron-main':
+        return 'server';
+      default:
+        return 'browser';
     }
 }
