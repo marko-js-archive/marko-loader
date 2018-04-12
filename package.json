@@ -4,7 +4,7 @@
   "description": "A marko template loader for webpack",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
     "webpack",
@@ -14,7 +14,10 @@
   "author": "Patrick Steele-Idem <pnidem@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "marko": "^4.0.0-rc.23"
+    "jest": "^22.4.3",
+    "marko": "^4.0.0-rc.23",
+    "memory-fs": "^0.4.1",
+    "npm-install-version": "^6.0.2"
   },
   "repository": {
     "type": "git",
