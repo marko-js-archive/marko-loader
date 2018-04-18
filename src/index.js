@@ -24,6 +24,18 @@ module.exports = function(source) {
             writeToDisk: false
         });
 
+        if (compiled.context.meta.tags) {
+            compiled.context.meta.tags.forEach((tag) => {
+                this.resolve(this.context, tag.value, (err, res) => {
+                    if (err) {
+                        this.emitWarning(`Unable to resolve dependency for ${compiled.filename}: ${tag.value}\n`);
+                    } else {
+                        this.addDependency(res);
+                    }
+                })
+            });
+        }
+
         var dependencies = compiled.dependencies.map((dependency, i) => {
             if (!dependency.code) {
                 // external file, just require it
