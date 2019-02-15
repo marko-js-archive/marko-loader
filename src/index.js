@@ -1,6 +1,6 @@
 'use strict';
 
-var markoCompiler = require('marko/compiler');
+var markoCompiler;
 var loaderUtils = require('loader-utils');
 var encode = require('./interface').encode;
 
@@ -13,9 +13,11 @@ var codeLoader = require.resolve('./code-loader');
 module.exports = function(source) {
     const queryOptions = loaderUtils.getOptions(this);  // Not the same as this.options
     const target = queryOptions && queryOptions.target;
-
+    const hydrate = queryOptions && queryOptions.hydrate;
     const module = this.options.module;
     const loaders = module && (module.loaders || module.rules) || [];
+
+    loadMarkoCompiler();
 
     this.cacheable(false);
 
@@ -38,7 +40,11 @@ module.exports = function(source) {
             }
         });
 
-        return dependencies.concat(compiled.code).join('\n');
+        if (!hydrate) {
+            dependencies = dependencies.concat(compiled.code);
+        }
+
+        return dependencies.join('\n');
     } else {
         return markoCompiler.compile(source, this.resourcePath, {
             writeToDisk: false,
@@ -46,6 +52,20 @@ module.exports = function(source) {
         });
     }
 };
+
+function loadMarkoCompiler() {
+    if (markoCompiler) return;
+
+    var markoCompilerPath;
+
+    try {
+        markoCompilerPath = require.resolve('marko/compiler');
+    } catch(e) {
+        throw new Error('Cannot resolve `marko`. Marko should be installed as a dependency of your project.')
+    }
+
+    markoCompiler = require(markoCompilerPath);
+}
 
 function getLoaderMatch(path, loaders) {
     var loaderString;
