@@ -101,3 +101,21 @@ test(`compile template hydrate`, async () => {
     '.n(marko_node1, component);'
   ].forEach(line => expect(source).not.toContain(line));
 });
+
+test(`custom compiler`, async () => {
+  const entryFile = './fixtures/example.marko';
+  const loaderOptions = {
+    compiler: require.resolve('./fixtures/custom-marko-compiler')
+  };
+  const stats = await compiler(webpack, entryFile, loaderOptions);
+  const statsJson = stats.toJson();
+
+  const module = statsJson.modules.filter(m=>m.name.indexOf(entryFile)>-1)[0];
+  expect(module).toBeDefined();
+
+  const source = module.source;
+  expect(source).toBeDefined();
+
+  // ensure the tag dependency is included
+  expect(source).toEqual(`CUSTOM_COMPILED`);
+});

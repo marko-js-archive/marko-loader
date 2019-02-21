@@ -1,7 +1,6 @@
 'use strict';
 
 const path = require('path');
-const markoCompiler = require('marko/compiler');
 const loaderUtils = require('loader-utils');
 const encode = require('./interface').encode;
 
@@ -13,9 +12,12 @@ const codeLoader = require.resolve('./code-loader');
 const isHydrate = /\?hydrate$/;
 const isDependencies = /\?dependencies$/;
 
+const DEFAULT_COMPILER = require.resolve('marko/compiler');
+
 module.exports = function(source) {
     const queryOptions = loaderUtils.getOptions(this);  // Not the same as this.options
     const target = normalizeTarget((queryOptions && queryOptions.target) || this.target);
+    const markoCompiler = require(queryOptions && queryOptions.compiler || DEFAULT_COMPILER);
     const dependenciesOnly = isDependencies.test(this.resource);
     const hydrate = isHydrate.test(this.resource);
 
