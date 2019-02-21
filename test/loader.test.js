@@ -1,44 +1,103 @@
-const niv = require('npm-install-version');
+/**
+* @jest-environment node
+*/
+
+const webpack = require('webpack');
 const compiler = require('./compiler.js');
 
 jest.useFakeTimers();
 
-function testWebpackVersion(version) {
+test(`compile template`, async () => {
+  const entryFile = './fixtures/example.marko';
+  const stats = await compiler(webpack, entryFile);
+  const statsJson = stats.toJson();
 
-  test(`webpack ${version}`, async () => {
+  const module = statsJson.modules.filter(m=>m.name.indexOf(entryFile)>-1)[0];
+  expect(module).toBeDefined();
 
-    let npmWepackVersion = `webpack@${version}`
-    niv.install(npmWepackVersion);
+  const source = module.source;
+  expect(source).toBeDefined();
 
-    const webpack = niv.require(npmWepackVersion);
+  // ensure the style is included and the custom-style-loader from the webpack config is used
+  expect(source).toContain(`require("!!custom-style-loader!../../src/code-loader.js?CODE=2e6578616d706c65207b0a20202020666f6e742d7765696768743a20626f6c643b0a20207d!./example.marko")`);
 
-    const markoFileName = 'example.marko';
-    const stats = await compiler(webpack, markoFileName);
-    const statsJson = stats.toJson();
+  // ensure the template compiles - only test some strings to avoid too tight a coupling to the compled output structure
+  [
+    'out.e("DIV", null, "0", component, 6)',
+    '.t("1+1=")',
+    '.t(2)',
+    '.n(marko_node0, component)',
+    '.t(" Eopc=")',
+    '.t(Date.now())',
+    '.n(marko_node1, component);'
+  ].forEach(line => expect(source).toContain(line));
+});
 
-    const module = statsJson.modules.filter(m=>m.name.indexOf(markoFileName)>-1)[0];
-    expect(module).toBeDefined();
+test(`compile template dependencies only`, async () => {
+  const entryFile = './fixtures/example.marko';
+  const stats = await compiler(webpack, '!!marko-loader?dependencies!' + entryFile);
+  const statsJson = stats.toJson();
 
-    const source = module.source;
-    expect(source).toBeDefined();
+  expect(statsJson.modules.map(m => m.name)).toEqual([
+    "../src?dependencies!./fixtures/example.marko",
+    "../src?dependencies!./fixtures/components/test.marko"
+  ]);
 
-    // debugger
-    // console.log(source)
+  const module = statsJson.modules.filter(m=>m.name.indexOf(entryFile)>-1)[0];
+  expect(module).toBeDefined();
 
-    /// ensure the custom-style-loader is extracted from the webpack config
-    expect(source).toContain(`require("!!custom-style-loader!../src/code-loader.js?CODE=2e6578616d706c65207b0a20202020666f6e742d7765696768743a20626f6c643b0a20207d!./example.marko")`);
+  const source = module.source;
+  expect(source).toBeDefined();
 
-    // ensure the template compules - only test some strings to avoid too tight a coupling to the compled output structure
-    [
-      'out.e("DIV", null, "0", component, 6)',
-      '.t("1+1=")',
-      '.t(2)',
-      '.n(marko_node0, component)',
-      '.t(" Eopc=")',
-      '.t(Date.now())',
-      '.n(marko_node1, component);'
-    ].forEach(line => expect(source).toContain(line))
+  // ensure the style is included and the custom-style-loader from the webpack config is used
+  expect(source).toContain(`require("!!custom-style-loader!../../src/code-loader.js?CODE=2e6578616d706c65207b0a20202020666f6e742d7765696768743a20626f6c643b0a20207d!./example.marko")`);
 
-  });
-}
-["3.11.0", "4.2.0"].forEach(testWebpackVersion)
+  // ensure the tag dependency is included
+  expect(source).toContain(`require("!!marko-loader?dependencies!./components/test.marko")`);
+
+  // ensure the actual template code is not included
+  [
+    'out.e("DIV", null, "0", component, 6)',
+    '.t("1+1=")',
+    '.t(2)',
+    '.n(marko_node0, component)',
+    '.t(" Eopc=")',
+    '.t(Date.now())',
+    '.n(marko_node1, component);'
+  ].forEach(line => expect(source).not.toContain(line));
+});
+
+test(`compile template hydrate`, async () => {
+  const entryFile = './fixtures/example.marko';
+  const stats = await compiler(webpack, '!!marko-loader?hydrate!' + entryFile);
+  const statsJson = stats.toJson();
+
+  expect(statsJson.modules.map(m => m.name)).toEqual([
+    "../src?hydrate!./fixtures/example.marko",
+    "../src?dependencies!./fixtures/example.marko",
+    "../src?dependencies!./fixtures/components/test.marko"
+  ]);
+
+  const module = statsJson.modules.filter(m=>m.name.indexOf(entryFile)>-1)[0];
+  expect(module).toBeDefined();
+
+  const source = module.source;
+  expect(source).toBeDefined();
+
+  // ensure the tag dependency is included
+  expect(source).toContain(`require("!!marko-loader?dependencies!./example.marko")`);
+
+  // ensure the init code is included
+  expect(source).toContain(`window.$initComponents`);
+
+  // ensure the actual template code is not included
+  [
+    'out.e("DIV", null, "0", component, 6)',
+    '.t("1+1=")',
+    '.t(2)',
+    '.n(marko_node0, component)',
+    '.t(" Eopc=")',
+    '.t(Date.now())',
+    '.n(marko_node1, component);'
+  ].forEach(line => expect(source).not.toContain(line));
+});
