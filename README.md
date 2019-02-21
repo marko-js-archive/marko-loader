@@ -68,6 +68,27 @@ module.exports = {
 }
 ```
 
+### Override compiler
+
+If you want to use a different marko compiler than the one that would be discovered from `marko-loader`, you can set the `compiler` option to the absolute path to the marko compiler you wish to use instead.
+
+_webpack.config.js:_
+
+```javascript
+module.exports = {
+    // ...
+    module: {
+        rules: [{
+            test: /\.marko$/,
+            loader: "marko-loader",
+            options: {
+                compiler: require.resolve('marko/compiler')
+            }
+        }]
+    }
+};
+```
+
 ## Additional resources
 
 - Sample app: [marko-webpack](https://github.com/marko-js-samples/marko-webpack)
