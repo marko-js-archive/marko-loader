@@ -3,7 +3,7 @@ marko-loader
 
 A [marko](http://markojs.com/) template loader for [webpack](https://github.com/webpack/webpack).
 
-# Installation
+## Installation
 
 Install required packages:
 
@@ -29,7 +29,7 @@ const options = {
 module.exports = options;
 ```
 
-# Usage
+## Usage
 
 With this loader installed, you can then require `./template.marko` files as shown below:
 
@@ -48,15 +48,31 @@ var template = require('./template.marko')
 var html = template.renderToString({ name: 'Frank' });
 ```
 
-# Compilation target
+### Compilation target
 
 `marko-loader` will automatically detect your webpack target and output the appropriately compiled Marko code.
 If you wish to override this behaviour simply add the `target` field in the options for this loader.
 
-# Additional resources
+### Hydrate & dependencies for server-rendered pages
+
+When rendering a Marko template serverside, only components that can re-render need their full template in the browser.
+This loader supports only loading the needed parts to hydrate with two options:
+
+- `?dependencies` includes only the dependencies that are needed in the browser (css, dynamic components)
+- `?hydrate` includes these dependencies and also kicks off hydration & component initialization
+
+_webpack.config.js:_
+```js
+module.exports = {
+    entry: "./path/to/page.marko?hydrate",
+    /* ... */
+}
+```
+
+## Additional resources
 
 - Sample app: [marko-webpack](https://github.com/marko-js-samples/marko-webpack)
 
-# License
+## License
 
 MIT
