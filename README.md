@@ -17,16 +17,15 @@ And then register the marko loader in your webpack configuration file:
 _webpack.config.js:_
 
 ```javascript
-const options = {
+module.exports = {
     // ...
     module: {
-        loaders: [
-            { test: /\.marko$/, loader: 'marko-loader' }
-        ]
+        rules: [{
+            test: /\.marko$/,
+            loader: "marko-loader"
+        }]
     }
 };
-
-module.exports = options;
 ```
 
 ## Usage
