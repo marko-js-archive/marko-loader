@@ -1,21 +1,23 @@
 'use strict';
 
-var path = require('path');
-var markoCompiler = require('marko/compiler');
-var loaderUtils = require('loader-utils');
-var encode = require('./interface').encode;
+const path = require('path');
+const markoCompiler = require('marko/compiler');
+const loaderUtils = require('loader-utils');
+const encode = require('./interface').encode;
 
-var defaultLoaders = {
+const defaultLoaders = {
     'css':'style-loader!css-loader!'
 };
 
-var codeLoader = require.resolve('./code-loader');
+const codeLoader = require.resolve('./code-loader');
+const isHydrate = /\?hydrate$/;
+const isDependencies = /\?dependencies$/;
 
 module.exports = function(source) {
     const queryOptions = loaderUtils.getOptions(this);  // Not the same as this.options
     const target = normalizeTarget((queryOptions && queryOptions.target) || this.target);
-    const dependenciesOnly = queryOptions && queryOptions.dependencies;
-    const hydrate = queryOptions && queryOptions.hydrate;
+    const dependenciesOnly = isDependencies.test(this.resource);
+    const hydrate = isHydrate.test(this.resource);
 
     const module = this.options ? this.options.module : this._compilation.options.module;
     const loaders = module && (module.loaders || module.rules) || [];
@@ -24,7 +26,7 @@ module.exports = function(source) {
 
     if (hydrate) {
         return (`
-            require(${JSON.stringify(`!!marko-loader?dependencies!./${path.basename(this.resourcePath)}`)});
+            require(${JSON.stringify(`./${path.basename(this.resourcePath)}?dependencies`)});
             window.$initComponents && window.$initComponents();
         `);
     } else if (target !== 'server' && markoCompiler.compileForBrowser) {
@@ -50,10 +52,10 @@ module.exports = function(source) {
                     return `require(${JSON.stringify(dependency.path)});`;
                 } else {
                     // inline content, we'll create a
-                    var virtualPath = dependency.virtualPath;
-                    var loader = getLoaderMatch(virtualPath, loaders);
-                    var codeQuery = encode(dependency.code);
-                    var loaderString = loaderUtils.stringifyRequest(this, `!!${loader}${codeLoader}?${codeQuery}!${this.resourcePath}`);
+                    const virtualPath = dependency.virtualPath;
+                    const loader = getLoaderMatch(virtualPath, loaders);
+                    const codeQuery = encode(dependency.code);
+                    const loaderString = loaderUtils.stringifyRequest(this, `!!${loader}${codeLoader}?${codeQuery}!${this.resourcePath}`);
                     return `require(${loaderString})`;
                 }
             }));
@@ -63,8 +65,7 @@ module.exports = function(source) {
             // we need to also include the dependencies of
             // any tags that are used by this template
             dependencies = dependencies.concat(meta.tags.map(tagPath => {
-                const loader = '!!marko-loader?dependencies!';
-                return `require(${JSON.stringify(loader+tagPath)});`;
+                return `require(${JSON.stringify(tagPath+'?dependencies')});`;
             }));
         }
 
@@ -82,8 +83,8 @@ module.exports = function(source) {
 };
 
 function getLoaderMatch(path, loaders) {
-    var loaderString;
-    var ext;
+    let loaderString;
+    let ext;
 
     loaders.some(loader => {
         if(loader.test.test(path)) {
@@ -108,8 +109,8 @@ function getLoaderString(loader) {
     } else if (Array.isArray(loader)) {
         return loader.map(getLoaderString).join('');
     } else {
-        var options = loader.options;
-        var optionsString = options && (typeof options === 'string' ? options : JSON.stringify(options));
+        const options = loader.options;
+        const optionsString = options && (typeof options === 'string' ? options : JSON.stringify(options));
         return loader.loader + (optionsString ? '?' + optionsString : '') + '!';
     }
 }

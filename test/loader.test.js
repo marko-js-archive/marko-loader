@@ -35,12 +35,12 @@ test(`compile template`, async () => {
 
 test(`compile template dependencies only`, async () => {
   const entryFile = './fixtures/example.marko';
-  const stats = await compiler(webpack, '!!marko-loader?dependencies!' + entryFile);
+  const stats = await compiler(webpack, entryFile + '?dependencies');
   const statsJson = stats.toJson();
 
   expect(statsJson.modules.map(m => m.name)).toEqual([
-    "../src?dependencies!./fixtures/example.marko",
-    "../src?dependencies!./fixtures/components/test.marko"
+    "./fixtures/example.marko?dependencies",
+    "./fixtures/components/test.marko?dependencies"
   ]);
 
   const module = statsJson.modules.filter(m=>m.name.indexOf(entryFile)>-1)[0];
@@ -53,7 +53,7 @@ test(`compile template dependencies only`, async () => {
   expect(source).toContain(`require("!!custom-style-loader!../../src/code-loader.js?CODE=2e6578616d706c65207b0a20202020666f6e742d7765696768743a20626f6c643b0a20207d!./example.marko")`);
 
   // ensure the tag dependency is included
-  expect(source).toContain(`require("!!marko-loader?dependencies!./components/test.marko")`);
+  expect(source).toContain(`require("./components/test.marko?dependencies")`);
 
   // ensure the actual template code is not included
   [
@@ -69,13 +69,13 @@ test(`compile template dependencies only`, async () => {
 
 test(`compile template hydrate`, async () => {
   const entryFile = './fixtures/example.marko';
-  const stats = await compiler(webpack, '!!marko-loader?hydrate!' + entryFile);
+  const stats = await compiler(webpack, entryFile + '?hydrate');
   const statsJson = stats.toJson();
 
   expect(statsJson.modules.map(m => m.name)).toEqual([
-    "../src?hydrate!./fixtures/example.marko",
-    "../src?dependencies!./fixtures/example.marko",
-    "../src?dependencies!./fixtures/components/test.marko"
+    "./fixtures/example.marko?hydrate",
+    "./fixtures/example.marko?dependencies",
+    "./fixtures/components/test.marko?dependencies"
   ]);
 
   const module = statsJson.modules.filter(m=>m.name.indexOf(entryFile)>-1)[0];
@@ -85,7 +85,7 @@ test(`compile template hydrate`, async () => {
   expect(source).toBeDefined();
 
   // ensure the tag dependency is included
-  expect(source).toContain(`require("!!marko-loader?dependencies!./example.marko")`);
+  expect(source).toContain(`require("./example.marko?dependencies")`);
 
   // ensure the init code is included
   expect(source).toContain(`window.$initComponents`);
